@@ -2,6 +2,7 @@ import requests
 import datetime
 import random
 import os
+import time
 
 message_list = ['すごい！', '偉い!!', '素敵!!', 'ステーキ！！！']
 
@@ -14,7 +15,7 @@ def lambda_handler(event, context):
     for username in usernames:
 
         url = "https://kenkoooo.com/atcoder/atcoder-api/results?user="\
-        + username
+            + username
         respose = requests.get(url)
         respose_list = respose.json()
 
@@ -32,10 +33,14 @@ def lambda_handler(event, context):
                 solved_num += 1
         if solved_num > 0:
             post_message_to_channel(
-                username + "は今日" + str(solved_num) + "問ACしました！"\
+                username + "は今日" + str(solved_num) + "問ACしました！"
                 + random.choice(message_list))
         else:
             post_message_to_channel(username + "は今日問題を解いていません、、、草")
+
+        # APIを叩く間隔の確保
+        time.sleep(1)
+
     post_message_to_channel("\n----------\n明日も頑張ってね〜！")
     # TODO implement
     return {
