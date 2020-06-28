@@ -24,6 +24,8 @@ def lambda_handler(event, context):
         dt_now_jp = datetime.datetime.now(
             datetime.timezone(datetime.timedelta(hours=9)))
 
+        today_solved_num = 0
+
         for problem_dict in respose_list:
             # 提出情報
             judge = problem_dict['result']
@@ -40,9 +42,21 @@ def lambda_handler(event, context):
             submission_url = 'https://atcoder.jp/contests/' + \
                 contest_id + '/submissions/' + str(submission_id)
 
+            # 毎時間の報告
             if match_for_year_to_hour(dt_jp, dt_now_jp) and judge == 'AC':
                 post_message_to_channel(username + 'さん!\n' + '「' + problem_name + '」' + ' ACおめでとう! ' + str(
                     point) + 'ポイントゲット!!! ' + random.choice(message_list) + '\n' + submission_url)
+
+            if match_for_year_to_day(dt_jp, dt_now_jp) and judge == 'AC':
+                today_solved_num += 1
+
+        # 一日の報告
+        if dt_now_jp.hour == 23:
+            if today_solved_num > 0:
+                post_message_to_channel(
+                    username + "は今日" + str(today_solved_num) + "問ACしました！")
+            else:
+                post_message_to_channel(username + "は今日問題を解いていません、、、草")
 
         # APIを叩く間隔の確保
         time.sleep(1)
@@ -55,6 +69,10 @@ def lambda_handler(event, context):
 
 def match_for_year_to_hour(dt_a, dt_b):
     return (dt_a.year == dt_b.year) and (dt_a.month == dt_b.month) and (dt_a.day) == (dt_b.day) and (dt_a.hour) == (dt_b.hour)
+
+
+def match_for_year_to_day(dt_a, dt_b):
+    return (dt_a.year == dt_b.year) and (dt_a.month == dt_b.month) and (dt_a.day) == (dt_b.day)
 
 
 def post_message_to_channel(message):
