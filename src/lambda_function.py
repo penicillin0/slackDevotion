@@ -4,18 +4,16 @@ import random
 import os
 import time
 
-message_list = ['すごい！', '偉い!!', '素敵!!', 'ステーキ！！！']
+message_list = ['やるねぇ〜〜', 'よっ！', 'すごい！', '偉い!!', '素敵!!', 'ステーキ！！！']
 
 
 def lambda_handler(event, context):
 
     usernames = os.environ['MEMBERS'].split(',')
 
-    post_message_to_channel("みんな！結果発表の時間だよ！！\n----------")
     for username in usernames:
 
-        url = "https://kenkoooo.com/atcoder/atcoder-api/results?user="\
-            + username
+        url = "https://kenkoooo.com/atcoder/atcoder-api/results?user=" + username
         respose = requests.get(url)
         respose_list = respose.json()
 
@@ -26,31 +24,37 @@ def lambda_handler(event, context):
         dt_now_jp = datetime.datetime.now(
             datetime.timezone(datetime.timedelta(hours=9)))
 
-        solved_num = 0
         for problem_dict in respose_list:
+            # 提出情報
             judge = problem_dict['result']
+
             dt = datetime.datetime.fromtimestamp(problem_dict['epoch_second'])
+            # 日本に合わせるために+9時間
             dt_jp = dt + datetime.timedelta(hours=9)
 
-            if (dt_jp.month == dt_now_jp.month and dt_jp.year == dt_now_jp.year and
-                    dt_jp.day == dt_now_jp.day and judge == 'AC'):
-                solved_num += 1
-        if solved_num > 0:
-            post_message_to_channel(
-                username + "は今日" + str(solved_num) + "問ACしました！"
-                + random.choice(message_list))
-        else:
-            post_message_to_channel(username + "は今日問題を解いていません、、、草")
+            contest_id = problem_dict['contest_id']
+            submission_id = problem_dict['id']
+            point = int(problem_dict['point'])
+            problem_name = problem_dict['problem_id']
+
+            submission_url = 'https://atcoder.jp/contests/' + \
+                contest_id + '/submissions/' + str(submission_id)
+
+            if match_for_year_to_hour(dt_jp, dt_now_jp) and judge == 'AC':
+                post_message_to_channel(username + 'さん!\n' + '「' + problem_name + '」' + ' ACおめでとう! ' + str(
+                    point) + 'ポイントゲット!!! ' + random.choice(message_list) + '\n' + submission_url)
 
         # APIを叩く間隔の確保
         time.sleep(1)
-
-    post_message_to_channel("\n----------\n明日も頑張ってね〜！")
 
     return {
         'statusCode': 200,
         'body': json.dumps('OK')
     }
+
+
+def match_for_year_to_hour(dt_a, dt_b):
+    return (dt_a.year == dt_b.year) and (dt_a.month == dt_b.month) and (dt_a.day) == (dt_b.day) and (dt_a.hour) == (dt_b.hour)
 
 
 def post_message_to_channel(message):
