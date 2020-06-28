@@ -25,6 +25,7 @@ def lambda_handler(event, context):
             datetime.timezone(datetime.timedelta(hours=9)))
 
         today_solved_num = 0
+        today_point = 0
 
         for problem_dict in respose_list:
             # 提出情報
@@ -49,12 +50,13 @@ def lambda_handler(event, context):
 
             if match_for_year_to_day(dt_jp, dt_now_jp) and judge == 'AC':
                 today_solved_num += 1
+                today_point += point
 
         # 一日の報告
         if dt_now_jp.hour == 23:
             if today_solved_num > 0:
                 post_message_to_channel(
-                    username + "は今日" + str(today_solved_num) + "問ACしました！")
+                    username + "は今日" + str(today_solved_num) + "問ACしました！\n合計" + str(today_point) + "点!!")
             else:
                 post_message_to_channel(username + "は今日問題を解いていません、、、草")
 
