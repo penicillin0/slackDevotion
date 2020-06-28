@@ -22,14 +22,18 @@ def lambda_handler(event, context):
         # 上のjsonとは別物なのでここでimport
         import json
 
-        dt_tody = datetime.date.today()
+        # 日本に合わせるために+9時間
+        dt_now_jp = datetime.datetime.now(
+            datetime.timezone(datetime.timedelta(hours=9)))
 
         solved_num = 0
         for problem_dict in respose_list:
             judge = problem_dict['result']
             dt = datetime.datetime.fromtimestamp(problem_dict['epoch_second'])
-            if (dt.month == dt_tody.month and dt.year == dt_tody.year and
-                    dt.day == dt_tody.day and judge == 'AC'):
+            dt_jp = dt + datetime.timedelta(hours=9)
+
+            if (dt_jp.month == dt_now_jp.month and dt_jp.year == dt_now_jp.year and
+                    dt_jp.day == dt_now_jp.day and judge == 'AC'):
                 solved_num += 1
         if solved_num > 0:
             post_message_to_channel(
@@ -42,10 +46,10 @@ def lambda_handler(event, context):
         time.sleep(1)
 
     post_message_to_channel("\n----------\n明日も頑張ってね〜！")
-    # TODO implement
+
     return {
         'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
+        'body': json.dumps('OK')
     }
 
 
