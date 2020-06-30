@@ -61,7 +61,7 @@ def lambda_handler(event, context):
         }
         information_list_for_daily_report.append(information_for_daily_report)
 
-    if dt_now_jp.hour == 1:
+    if dt_now_jp.hour == 23:
         post_message_to_channel("結果発表の時間だぞ！！！")
         for daily_info in information_list_for_daily_report:
             username = daily_info['name']
