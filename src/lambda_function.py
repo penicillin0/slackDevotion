@@ -11,6 +11,8 @@ def lambda_handler(event, context):
 
     usernames = os.environ['MEMBERS'].split(',')
 
+    information_list_for_daily_report = []
+
     for username in usernames:
 
         url = "https://kenkoooo.com/atcoder/atcoder-api/results?user=" + username
@@ -52,13 +54,26 @@ def lambda_handler(event, context):
                 today_solved_num += 1
                 today_point += point
 
-        # 一日の報告
-        if dt_now_jp.hour == 23:
+        information_for_daily_report = {
+            'name': username,
+            'today_solved_num': today_solved_num,
+            'today_point': today_point
+        }
+        information_list_for_daily_report.append(information_for_daily_report)
+
+    if dt_now_jp.hour == 1:
+        post_message_to_channel("結果発表の時間だぞ！！！")
+        for daily_info in information_list_for_daily_report:
+            username = daily_info['name']
+            today_solved_num = daily_info['today_solved_num']
+            today_point = daily_info['today_point']
+
             if today_solved_num > 0:
                 post_message_to_channel(
                     username + "は今日" + str(today_solved_num) + "問ACしました！\n合計" + str(today_point) + "点!!")
             else:
                 post_message_to_channel(username + "は今日問題を解いていません、、、草")
+        post_message_to_channel("明日も頑張れ〜〜〜！")
 
         # APIを叩く間隔の確保
         time.sleep(1)
