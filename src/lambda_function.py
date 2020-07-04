@@ -29,6 +29,9 @@ def lambda_handler(event, context):
         today_solved_num = 0
         today_point = 0
 
+        # 1つの問題につき1報告/日までにしたい
+        today_solved_problem = set()
+
         for problem_dict in respose_list:
             # 提出情報
             judge = problem_dict['result']
@@ -46,11 +49,12 @@ def lambda_handler(event, context):
                 contest_id + '/submissions/' + str(submission_id)
 
             # 毎時間の報告
-            if match_for_year_to_hour(dt_jp, dt_now_jp) and judge == 'AC':
+            if match_for_year_to_hour(dt_jp, dt_now_jp) and judge == 'AC' and (problem_name not in today_solved_problem):
                 post_message_to_channel(username + 'さん!\n' + '「' + problem_name + '」' + ' ACおめでとう! ' + str(
                     point) + 'ポイントゲット!!! ' + random.choice(message_list) + '\n' + submission_url)
 
-            if match_for_year_to_day(dt_jp, dt_now_jp) and judge == 'AC':
+            if match_for_year_to_day(dt_jp, dt_now_jp) and judge == 'AC' and (problem_name not in today_solved_problem):
+                today_solved_problem.add(problem_name)
                 today_solved_num += 1
                 today_point += point
 
