@@ -5,6 +5,7 @@ import os
 import time
 
 message_list = ['やるねぇ〜〜', 'よっ！', 'すごい！', '偉い!!', '素敵!!', 'ステーキ！！！']
+bad_message_list = ['最下位だ！', 'なんて日だ！', 'ふーん', '草', 'wwww', '逃げちゃ駄目だ！']
 
 
 def lambda_handler(event, context):
@@ -67,18 +68,26 @@ def lambda_handler(event, context):
         information_list_for_daily_report.append(information_for_daily_report)
 
     if dt_now_jp.hour == 23:
-        post_message_to_channel("結果発表の時間だぞ！！！")
+        daily_response = str(dt_now_jp.month) + '/' + str(dt_now_jp.day) + '日報！\n'
+        information_list_for_daily_report.sort(key=lambda x: x['today_point'])
+
+        rank = 1
         for daily_info in information_list_for_daily_report:
             username = daily_info['name']
             today_solved_num = daily_info['today_solved_num']
             today_point = daily_info['today_point']
 
             if today_solved_num > 0:
-                post_message_to_channel(
-                    username + "は今日" + str(today_solved_num) + "問ACしました！\n合計" + str(today_point) + "点!!")
+                rank_info = '第' + str(rank) + '位:' + str(today_point) + 'ポイント '
+                msg = username + str(today_solved_num) + '問AC！\n'
+                rank += 1
             else:
-                post_message_to_channel(username + "は今日問題を解いていません、、、草")
-        post_message_to_channel("明日も頑張れ〜〜〜！")
+                rank_info = random.choice(bad_message_list)
+                msg = username + "!\n"
+            daily_response += rank_info
+            daily_response += msg
+        daily_response += '\n明日も頑張れ〜〜〜！'
+        post_message_to_channel(daily_response)
 
         # APIを叩く間隔の確保
         time.sleep(1)
