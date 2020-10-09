@@ -17,7 +17,8 @@ def lambda_handler(event, context):
 
         url = "https://kenkoooo.com/atcoder/atcoder-api/results?user=" + username
         respose = requests.get(url)
-        respose_list = respose.json()
+        # 提出時間順にsort
+        respose_list = sorted(respose.json(), key=lambda x: x['epoch_second'])
 
         # 上のjsonとは別物なのでここでimport
         import json
