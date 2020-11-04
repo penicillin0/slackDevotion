@@ -5,7 +5,7 @@ import os
 import time
 
 message_list = ['やるねぇ〜〜', 'よっ！', 'すごい！', '偉い!!', '素敵!!', 'ステーキ！！！']
-bad_message_list = ['最下位だ！', 'なんて日だ！', 'ふーん', '草', 'wwww', '逃げちゃ駄目だ！']
+bad_message_list = ['怠慢: ']
 
 
 def lambda_handler(event, context):
@@ -68,7 +68,8 @@ def lambda_handler(event, context):
         information_list_for_daily_report.append(information_for_daily_report)
 
     if dt_now_jp.hour == 23:
-        daily_response = str(dt_now_jp.month) + '/' + str(dt_now_jp.day) + '日報！\n'
+        daily_response = str(dt_now_jp.month) + '/' + \
+            str(dt_now_jp.day) + '日報！\n'
         information_list_for_daily_report.sort(key=lambda x: x['today_point'])
 
         rank = 1
@@ -78,8 +79,9 @@ def lambda_handler(event, context):
             today_point = daily_info['today_point']
 
             if today_solved_num > 0:
-                rank_info = '第' + str(rank) + '位:' + str(today_point) + 'ポイント '
-                msg = username + str(today_solved_num) + '問AC！\n'
+                rank_info = '第' + str(rank) + '位: ' + \
+                    str(today_point) + 'pt.  '
+                msg = username + ': ' + str(today_solved_num) + '問AC！\n'
                 rank += 1
             else:
                 rank_info = random.choice(bad_message_list)
