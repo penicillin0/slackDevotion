@@ -70,7 +70,8 @@ def lambda_handler(event, context):
     if dt_now_jp.hour == 23:
         daily_response = str(dt_now_jp.month) + '/' + \
             str(dt_now_jp.day) + '日報！\n'
-        information_list_for_daily_report.sort(key=lambda x: x['today_point'])
+        information_list_for_daily_report.sort(
+            key=lambda x: x['today_point'], reverse=True)
 
         rank = 1
         for daily_info in information_list_for_daily_report:
