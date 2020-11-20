@@ -5,7 +5,7 @@ import os
 import time
 
 message_list = ['やるねぇ〜〜', 'よっ！', 'すごい！', '偉い!!', '素敵!!', 'ステーキ！！！']
-bad_message_list = ['怠慢: ']
+bad_message_list = ['👿 <(']
 
 
 def lambda_handler(event, context):
@@ -86,7 +86,7 @@ def lambda_handler(event, context):
                 rank += 1
             else:
                 rank_info = random.choice(bad_message_list)
-                msg = username + "!\n"
+                msg = username + " )\n"
             daily_response += rank_info
             daily_response += msg
         daily_response += '\n明日も頑張れ〜〜〜！'
