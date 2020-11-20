@@ -31,19 +31,9 @@ def lambda_handler(event, context):
             key=lambda at_user: at_user.get_daily_status['today_point'], reverse=True)
 
         for rank, at_user in enumerate(at_users, start=1):
-            if at_user['today_solved_num'] > 0:
-                rank_info = '第' + str(rank) + '位: ' + \
-                    str(at_user['today_point']) + 'pt.  '
-                msg = at_user['name'] + ': ' + \
-                    str(at_user['today_solved_num']) + '問AC！\n'
-            else:
-                rank_info = random.choice(bad_message_list)
-                msg = at_user['name'] + " )\n"
+            daily_response += make_daily_message(rank, at_user)
 
-            daily_response += rank_info
-            daily_response += msg
-        daily_response += '\n明日も頑張れ〜〜〜！'
-        post_message_to_channel(daily_response)
+        post_message_to_channel(daily_response + '\n明日も頑張れ〜〜〜！')
 
     import json
     return {
@@ -72,7 +62,7 @@ class AtCoder_user():
                 continue
 
             # 今日すでに解いた問題であればskip
-            if submission_dict['problem_id'] in [d.get('problem_name') for d in today_solved_problem]:
+            if submission_dict['problem_id'] in [d.get('problem_name') for d in today_solved_problems]:
                 continue
 
             # 日本時間に
@@ -87,11 +77,11 @@ class AtCoder_user():
                 'submit_time': submit_time,
                 'problem_name': submission_dict['problem_id'],
                 'point': int(submission_dict['point']),
-                'submission_id': submission_dict['id'],
+                'submission_id': str(submission_dict['id']),
                 'contest_id': submission_dict['contest_id'],
                 'submission_url': 'https://atcoder.jp/contests/' +
                 submission_dict['contest_id'] +
-                '/submissions/' + submission_dict['id']
+                '/submissions/' + str(submission_dict['id'])
             }
 
             today_solved_problems.append(today_solved_problem)
@@ -109,6 +99,18 @@ class AtCoder_user():
             'today_solved_num': len(self.today_solved_problems),
             'today_point': sum([d.get('point') for d in self.today_solved_problems])
         }
+
+
+def make_daily_message(rank, at_user):
+    if at_user['today_solved_num'] == 0:
+        daily_message = random.choice(
+            bad_message_list) + '\n' + at_user['name'] + " )\n"
+    else:
+        daily_message = '第' + str(rank) + '位: ' + \
+            str(at_user['today_point']) + 'pt.  \n' + at_user['name'] + ': ' + \
+            str(at_user['today_solved_num']) + '問AC！\n'
+
+    return daily_message
 
 
 def match_for_year_to_hour(dt_a, dt_b):
