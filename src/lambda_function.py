@@ -28,19 +28,17 @@ def lambda_handler(event, context):
         daily_response = str(dt_now_jp.month) + '/' + \
             str(dt_now_jp.day) + '日報！\n'
         at_users.sort(
-            key=lambda at_user: at_user.get_daily_status()['today_point'], reverse=True)
+            key=lambda at_user: at_user.get_daily_status()['today_point'],
+            reverse=True)
         print(at_users)
         for rank, at_user in enumerate(at_users, start=1):
-            
+
             daily_response += make_daily_message(rank, at_user)
 
         post_message_to_channel(daily_response + '\n明日も頑張れ〜〜〜！')
 
     import json
-    return {
-        'statusCode': 200,
-        'body': json.dumps('OK')
-    }
+    return {'statusCode': 200, 'body': json.dumps('OK')}
 
 
 class AtCoder_user():
@@ -52,8 +50,8 @@ class AtCoder_user():
         url = "https://kenkoooo.com/atcoder/atcoder-api/results?user=" + self.at_username
         respose = requests.get(url)
         # 提出時間順にsort
-        submission_list = sorted(
-            respose.json(), key=lambda x: x['epoch_second'])
+        submission_list = sorted(respose.json(),
+                                 key=lambda x: x['epoch_second'])
 
         today_solved_problems = []
         for submission_dict in submission_list:
@@ -63,7 +61,9 @@ class AtCoder_user():
                 continue
 
             # 今日すでに解いた問題であればskip
-            if submission_dict['problem_id'] in [d.get('problem_name') for d in today_solved_problems]:
+            if submission_dict['problem_id'] in [
+                    d.get('problem_name') for d in today_solved_problems
+            ]:
                 continue
 
             # 日本時間に
@@ -75,14 +75,20 @@ class AtCoder_user():
                 continue
 
             today_solved_problem = {
-                'submit_time': submit_time,
-                'problem_name': submission_dict['problem_id'],
-                'point': int(submission_dict['point']),
-                'submission_id': str(submission_dict['id']),
-                'contest_id': submission_dict['contest_id'],
-                'submission_url': 'https://atcoder.jp/contests/' +
-                submission_dict['contest_id'] +
-                '/submissions/' + str(submission_dict['id'])
+                'submit_time':
+                submit_time,
+                'problem_name':
+                submission_dict['problem_id'],
+                'point':
+                int(submission_dict['point']),
+                'submission_id':
+                str(submission_dict['id']),
+                'contest_id':
+                submission_dict['contest_id'],
+                'submission_url':
+                'https://atcoder.jp/contests/' +
+                submission_dict['contest_id'] + '/submissions/' +
+                str(submission_dict['id'])
             }
 
             today_solved_problems.append(today_solved_problem)
@@ -91,14 +97,22 @@ class AtCoder_user():
     def hourly_report(self):
         for submission in self.today_solved_problems:
             if match_for_year_to_hour(submission['submit_time'], dt_now_jp):
-                post_message_to_channel(self.at_username + 'さん!\n' + '「' + submission['problem_name'] + '」' + ' ACおめでとう! ' + str(
-                    submission['point']) + 'ポイントゲット!!! ' + random.choice(message_list) + '\n' + submission['submission_url'])
+                post_message_to_channel(self.at_username + 'さん!\n' + '「' +
+                                        submission['problem_name'] + '」' +
+                                        ' ACおめでとう! ' +
+                                        str(submission['point']) +
+                                        'ポイントゲット!!! ' +
+                                        random.choice(message_list) + '\n' +
+                                        submission['submission_url'])
 
     def get_daily_status(self):
         return {
-            'name': self.at_username,
-            'today_solved_num': len(self.today_solved_problems),
-            'today_point': sum([d.get('point') for d in self.today_solved_problems])
+            'name':
+            self.at_username,
+            'today_solved_num':
+            len(self.today_solved_problems),
+            'today_point':
+            sum([d.get('point') for d in self.today_solved_problems])
         }
 
 
@@ -115,11 +129,14 @@ def make_daily_message(rank, at_user):
 
 
 def match_for_year_to_hour(dt_a, dt_b):
-    return (dt_a.year == dt_b.year) and (dt_a.month == dt_b.month) and (dt_a.day) == (dt_b.day) and (dt_a.hour) == (dt_b.hour)
+    return (dt_a.year == dt_b.year) and (dt_a.month == dt_b.month) and (
+        dt_a.day) == (dt_b.day) and (dt_a.hour) == (dt_b.hour)
 
 
 def match_for_year_to_day(dt_a, dt_b):
-    return (dt_a.year == dt_b.year) and (dt_a.month == dt_b.month) and (dt_a.day) == (dt_b.day)
+    return (dt_a.year
+            == dt_b.year) and (dt_a.month
+                               == dt_b.month) and (dt_a.day) == (dt_b.day)
 
 
 def post_message_to_channel(message):
