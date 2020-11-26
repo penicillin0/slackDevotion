@@ -122,8 +122,8 @@ def make_daily_message(rank, at_user):
             bad_message_list) + at_user.get_daily_status()['name'] + " )\n"
     else:
         daily_message = '第' + str(rank) + '位: ' + \
-            str(at_user['today_point']) + 'pt.  \n' + at_user.get_daily_status()['name'] + ': ' + \
-            str(at_user['today_solved_num']) + '問AC！\n'
+            str(at_user.get_daily_status()['today_point']) + 'pt.  \n' + at_user.get_daily_status()['name'] + ': ' + \
+            str(at_user.get_daily_status()['today_solved_num']) + '問AC！\n'
 
     return daily_message
 
