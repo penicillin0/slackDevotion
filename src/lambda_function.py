@@ -117,13 +117,14 @@ class AtCoder_user():
 
 
 def make_daily_message(rank, at_user):
-    if at_user.get_daily_status()['today_solved_num'] == 0:
+    user_status = at_user.get_daily_status()
+    if user_status['today_solved_num'] == 0:
         daily_message = random.choice(
-            bad_message_list) + at_user.get_daily_status()['name'] + " )\n"
+            bad_message_list) + user_status['name'] + " )\n"
     else:
         daily_message = '第' + str(rank) + '位: ' + \
-            str(at_user.get_daily_status()['today_point']) + 'pt.  \n' + at_user.get_daily_status()['name'] + ': ' + \
-            str(at_user.get_daily_status()['today_solved_num']) + '問AC！\n'
+            str(user_status['today_point']) + 'pt.  \n' + user_status['name'] + ': ' + \
+            str(user_status['today_solved_num']) + '問AC！\n'
 
     return daily_message
 
