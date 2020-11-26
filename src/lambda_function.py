@@ -24,7 +24,7 @@ def lambda_handler(event, context):
         # APIを叩く間隔の確保
         time.sleep(1)
 
-    if dt_now_jp.hour == 19:
+    if dt_now_jp.hour == 23:
         daily_response = str(dt_now_jp.month) + '/' + \
             str(dt_now_jp.day) + '日報！\n'
         at_users.sort(
