@@ -24,13 +24,14 @@ def lambda_handler(event, context):
         # APIを叩く間隔の確保
         time.sleep(1)
 
-    if dt_now_jp.hour == 23:
+    if dt_now_jp.hour == 19:
         daily_response = str(dt_now_jp.month) + '/' + \
             str(dt_now_jp.day) + '日報！\n'
         at_users.sort(
-            key=lambda at_user: at_user.get_daily_status['today_point'], reverse=True)
-
+            key=lambda at_user: at_user.get_daily_status()['today_point'], reverse=True)
+        print(at_users)
         for rank, at_user in enumerate(at_users, start=1):
+            
             daily_response += make_daily_message(rank, at_user)
 
         post_message_to_channel(daily_response + '\n明日も頑張れ〜〜〜！')
@@ -102,12 +103,12 @@ class AtCoder_user():
 
 
 def make_daily_message(rank, at_user):
-    if at_user['today_solved_num'] == 0:
+    if at_user.get_daily_status()['today_solved_num'] == 0:
         daily_message = random.choice(
-            bad_message_list) + '\n' + at_user['name'] + " )\n"
+            bad_message_list) + at_user.get_daily_status()['name'] + " )\n"
     else:
         daily_message = '第' + str(rank) + '位: ' + \
-            str(at_user['today_point']) + 'pt.  \n' + at_user['name'] + ': ' + \
+            str(at_user['today_point']) + 'pt.  \n' + at_user.get_daily_status()['name'] + ': ' + \
             str(at_user['today_solved_num']) + '問AC！\n'
 
     return daily_message
