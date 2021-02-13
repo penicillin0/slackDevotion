@@ -16,13 +16,15 @@ def lambda_handler(event, context):
 
     at_users = []
 
+    all_hourly_massage = ""
     for username in usernames:
 
         at_user = AtCoder_user(username)
-        at_user.hourly_report()
+        all_hourly_massage += at_user.hourly_report()
         at_users.append(at_user)
         # APIを叩く間隔の確保
         time.sleep(1)
+    post_message_to_channel(all_hourly_massage)
 
     if dt_now_jp.hour == 23:
         daily_response = str(dt_now_jp.month) + '/' + \
@@ -94,16 +96,16 @@ class AtCoder_user():
             today_solved_problems.append(today_solved_problem)
         return today_solved_problems
 
-    def hourly_report(self):
+    def hourly_report(self) -> str:
+        hourly_message = ""
         for submission in self.today_solved_problems:
             if match_for_year_to_hour(submission['submit_time'], dt_now_jp):
-                post_message_to_channel(self.at_username + 'さん!\n' + '「' +
-                                        submission['problem_name'] + '」' +
-                                        ' ACおめでとう! ' +
-                                        str(submission['point']) +
-                                        'ポイントゲット!!! ' +
-                                        random.choice(message_list) + '\n' +
-                                        submission['submission_url'])
+                hourly_message += self.at_username + 'さん!\n' + '「' + \
+                    submission['problem_name'] + '」' + \
+                    ' ACおめでとう! ' + str(submission['point']) + 'ポイントゲット!!! ' + random.choice(
+                        message_list) + '\n' + submission['submission_url'] + '\n'
+
+        return hourly_message
 
     def get_daily_status(self):
         return {
