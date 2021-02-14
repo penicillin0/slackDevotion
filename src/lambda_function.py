@@ -12,14 +12,14 @@ dt_now_jp = datetime.datetime.now(
 
 def lambda_handler(event, context):
 
-    usernames = os.environ['MEMBERS'].split(',')
+    usernames: list[str] = os.environ['MEMBERS'].split(',')
 
     at_users = []
 
     all_hourly_massage = ""
     for username in usernames:
 
-        at_user = AtCoder_user(username)
+        at_user: AtCoder_user = AtCoder_user(username)
         all_hourly_massage += at_user.hourly_report()
         at_users.append(at_user)
         # APIを叩く間隔の確保
@@ -27,7 +27,7 @@ def lambda_handler(event, context):
     post_message_to_channel(all_hourly_massage)
 
     if dt_now_jp.hour == 23:
-        daily_response = str(dt_now_jp.month) + '/' + \
+        daily_response: str = str(dt_now_jp.month) + '/' + \
             str(dt_now_jp.day) + '日報！\n'
         at_users.sort(
             key=lambda at_user: at_user.get_daily_status()['today_point'],
@@ -44,7 +44,7 @@ def lambda_handler(event, context):
 
 
 class AtCoder_user():
-    def __init__(self, at_username):
+    def __init__(self, at_username: str):
         self.at_username = at_username
         self.today_solved_problems = self._get_today_solved()
 
@@ -55,7 +55,7 @@ class AtCoder_user():
         submission_list = sorted(respose.json(),
                                  key=lambda x: x['epoch_second'])
 
-        today_solved_problems = []
+        today_solved_problems: list[dict] = []
         for submission_dict in submission_list:
 
             # ACじゃなければskip
@@ -97,7 +97,7 @@ class AtCoder_user():
         return today_solved_problems
 
     def hourly_report(self) -> str:
-        hourly_message = ""
+        hourly_message: str = ""
         for submission in self.today_solved_problems:
             if match_for_year_to_hour(submission['submit_time'], dt_now_jp):
                 hourly_message += self.at_username + 'さん!\n' + '「' + \
@@ -118,7 +118,7 @@ class AtCoder_user():
         }
 
 
-def make_daily_message(rank, at_user):
+def make_daily_message(rank: int, at_user: AtCoder_user):
     user_status = at_user.get_daily_status()
     if user_status['today_solved_num'] == 0:
         daily_message = random.choice(
@@ -131,18 +131,18 @@ def make_daily_message(rank, at_user):
     return daily_message
 
 
-def match_for_year_to_hour(dt_a, dt_b):
+def match_for_year_to_hour(dt_a: datetime, dt_b: datetime) -> bool:
     return (dt_a.year == dt_b.year) and (dt_a.month == dt_b.month) and (
         dt_a.day) == (dt_b.day) and (dt_a.hour) == (dt_b.hour)
 
 
-def match_for_year_to_day(dt_a, dt_b):
+def match_for_year_to_day(dt_a: datetime, dt_b: datetime) -> bool:
     return (dt_a.year
             == dt_b.year) and (dt_a.month
                                == dt_b.month) and (dt_a.day) == (dt_b.day)
 
 
-def post_message_to_channel(message):
+def post_message_to_channel(message: str) -> None:
     import json
     url = os.environ['SLACK_INCOMMING_WEBHOOK']
     requests.post(url, data=json.dumps({
