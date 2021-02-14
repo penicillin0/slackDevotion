@@ -23,3 +23,11 @@ use this in lambda function (Non-formula API)
 - https://github.com/kenkoooo/AtCoderProblems/blob/master/doc/api.md
 
 Thank you for Mr.[kenkoooo](https://github.com/kenkoooo) for API
+
+## How to test
+
+At top dir,
+
+```test.sh
+python3 -m unittest -v src/tests/test_functions.py  
+```
